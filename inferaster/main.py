@@ -1,30 +1,37 @@
 import argparse
 import os
 
-from data_trawler.utils.parse_config import parse_config
-from data_trawler.chipping.chipper import BaseChipper
+from inferaster.utils.parse_config import parse_config
+from inferaster.chipping.chipper import BaseChipper
 
+"""
 try:
-    from data_trawler.downloaders.maxar_downloaders import MaxarApiTilesDownloader, MaxarZipDataDownloader
+    from inferaster.downloaders.maxar_downloaders import MaxarApiTilesDownloader, MaxarZipDataDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with maxar downloader; {}".format(err)))
+"""
 
+"""
 try:
-    from data_trawler.downloaders.aviris_downloaders import AvirisDownloader
+    from inferaster.downloaders.aviris_downloaders import AvirisDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with aviris downloader; {}".format(err)))
+"""
 
 try:
-    from data_trawler.downloaders.eros_downloaders import ErosDownloader
+    from inferaster.downloaders.eros_downloaders import ErosDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with eros downloader; {}".format(err)))
 
+"""
 try:
-    from data_trawler.downloaders.hyperion_downloader import ErosHyperionDownloader
+    from inferaster.downloaders.hyperion_downloader import ErosHyperionDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with eros downloader; {}".format(err)))
+"""
+
 try:
-    from data_trawler.downloaders.mag_downloaders import GaddsZipDownloader
+    from inferaster.downloaders.mag_downloaders import GaddsZipDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with GADDS downloader; {}".format(err)))
 

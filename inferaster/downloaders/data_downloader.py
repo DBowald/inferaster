@@ -4,8 +4,8 @@ import os
 import requests
 from typing import List
 
-from data_trawler.utils.geo_shapes import WgsBBox, WgsPoint, GeoPoint, GeoBBox
-from data_trawler.utils.geotiff import Geotiff
+from inferaster.utils.geo_shapes import WgsBBox, WgsPoint, GeoPoint, GeoBBox
+from inferaster.utils.geotiff import Geotiff
 
 
 class Entry():

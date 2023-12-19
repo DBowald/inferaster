@@ -7,8 +7,8 @@ from geopy.distance import geodesic
 import geopandas as geopd
 import matplotlib.pyplot as plt
 
-from data_trawler.utils.great_circles import move_along_meridian, move_along_parallel
-from data_trawler.utils.geo_shapes import WgsBBox, WgsPoint, GeoPoint, GeoBBox
+from inferaster.utils.great_circles import move_along_meridian, move_along_parallel
+from inferaster.utils.geo_shapes import WgsBBox, WgsPoint, GeoPoint, GeoBBox
 
 """
 class OsmTile(WgsBBox):

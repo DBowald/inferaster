@@ -1,5 +1,5 @@
 import argparse
-from data_trawler.utils.parse_config import parse_config
+from inferaster.utils.parse_config import parse_config
 import os
 import shutil
 import pathlib

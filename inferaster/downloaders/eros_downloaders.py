@@ -13,10 +13,10 @@ import zipfile, os
 import yaml
 import rasterio
 import copy
-from data_trawler.utils.geotiff import Geotiff
+from inferaster.utils.geotiff import Geotiff
 
 
-from data_trawler.downloaders.data_downloader import DataDownloader, Entry
+from inferaster.downloaders.data_downloader import DataDownloader, Entry
 
 class ErosDownloader(DataDownloader):
     """

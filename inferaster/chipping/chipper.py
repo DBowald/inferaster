@@ -13,11 +13,11 @@ from PIL import Image
 from rasterio._err import CPLE_NotSupportedError
 import yaml
 import argparse
-import data_trawler.utils.geotiff as geotiff
-import data_trawler.tiling.tilesets as tilesets
-from data_trawler.utils.geo_shapes import WgsBBox, WgsPoint
+import inferaster.utils.geotiff as geotiff
+import inferaster.tiling.tilesets as tilesets
+from inferaster.utils.geo_shapes import WgsBBox, WgsPoint
 import glob
-from data_trawler.utils.geotiff import Geotiff
+from inferaster.utils.geotiff import Geotiff
 import geopandas
 import pandas as pd
 import json

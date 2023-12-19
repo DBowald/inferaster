@@ -1,0 +1,18 @@
+dataset: "maxar_api"
+bounding_box:
+  nw_point:
+    latitude: 39.8543
+    longitude: -84.2421
+  se_point:
+    latitude: 39.7895
+    longitude: -84.1804
+datapath: ~/data/geotiffs
+full_tiff_dir: tiffs_to_chip
+chip_dir: chipped
+max_downloads: 4
+time_range:
+  start_date: '2001-12-10'
+  end_date: '2016-12-10'
+bands: ["RGB"]
+tiling_method: "EquiviTiles"
+chip_size_m: 200

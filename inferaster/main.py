@@ -31,14 +31,14 @@ except ImportError as err:
 """
 
 try:
-    from inferaster.downloaders.mag_downloaders import GaddsZipDownloader
+    from inferaster.downloaders.zip_downloaders import GaddsZipDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with GADDS downloader; {}".format(err)))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--yaml",default= "utils/config_files/hyperion_input.yaml",
+    parser.add_argument("--yaml",default= "./inferaster/config_files/your_config_here.yaml",
                         help="Your yaml file for inputs; do not use base_* files, these are example files, and changes will be pushed.")
     parser.add_argument("--download", action='store_true')
     parser.add_argument("--chip", action='store_true')
@@ -65,16 +65,16 @@ if __name__ == "__main__":
     
     if(args.download):
         dset = parsed_config["dataset"]
-        if dset == "maxar_api":
-            downloader = MaxarApiTilesDownloader(parsed_config)
-        elif dset == "maxar_zip":
-            donwloader = MaxarZipDataDownloader(parsed_config)
-        elif dset == "aviris":
-            downloader = AvirisDownloader(parsed_config)
-        elif dset == "eros":
+        if dset == "eros":
             downloader = ErosDownloader(parsed_config)
-        elif dset == "eros_hyperion":
-            downloader = ErosHyperionDownloader(parsed_config)
+        #if dset == "maxar_api":
+        #    downloader = MaxarApiTilesDownloader(parsed_config)
+        #elif dset == "maxar_zip":
+        #    donwloader = MaxarZipDataDownloader(parsed_config)
+        #elif dset == "aviris":
+        #    downloader = AvirisDownloader(parsed_config)
+        #elif dset == "eros_hyperion":
+        #    downloader = ErosHyperionDownloader(parsed_config)
         else:
             raise NotImplementedError("Downloader {} not implemented. Valid options are maxar_api, maxar_zip, aviris, and eros.".format(dset))
     

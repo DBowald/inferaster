@@ -162,3 +162,4 @@ cython_debug/
 
 inferaster/config_files/*
 !inferaster/config_files/*example*
+inferaster/logins/*

@@ -116,11 +116,6 @@ class GaddsZipDownloader(DataDownloader):
         return lon_d/pix_width
 
 
-
-
-
-
-    
     def get_image_data_list(self, max_items: int) -> 'list[Entry]':
         """ 
         Forms a list of metadata entries for download. Check out the Entry docstring for info on all the parameters an Entry should contain.

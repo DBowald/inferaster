@@ -1,4 +1,4 @@
-from data_trawler.utils.geo_shapes import WgsPoint
+from inferaster.utils.geo_shapes import WgsPoint
 from geopy.distance import geodesic
 
 def move_along_parallel(pt, m) -> WgsPoint:

@@ -13,7 +13,7 @@ from PIL import Image
 from rasterio._err import CPLE_NotSupportedError
 import yaml
 import argparse
-from data_trawler.utils.geo_shapes import WgsBBox
+from inferaster.utils.geo_shapes import WgsBBox
 import warnings
 import json
 warnings.filterwarnings("ignore")
@@ -234,7 +234,7 @@ class Geotiff:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--yaml",default= "data_trawler/utils/config_files/maxar.yaml",
+    parser.add_argument("--yaml",default= "inferaster/utils/config_files/maxar.yaml",
                         help="the yaml file for inputs")
     args = parser.parse_args()
 

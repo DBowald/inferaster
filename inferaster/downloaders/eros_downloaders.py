@@ -13,10 +13,10 @@ import zipfile, os
 import yaml
 import rasterio
 import copy
-from data_trawler.utils.geotiff import Geotiff
+from inferaster.utils.geotiff import Geotiff
 
 
-from data_trawler.downloaders.data_downloader import DataDownloader, Entry
+from inferaster.downloaders.data_downloader import DataDownloader, Entry
 
 class ErosDownloader(DataDownloader):
     """
@@ -40,8 +40,8 @@ class ErosDownloader(DataDownloader):
         self.bbox = self.bounding_box
         self.datapath = parsed_config["datapath"]
         self.tiff_dir = parsed_config["full_tiff_dir"]
-        self.username=parsed_config['username']
-        self.password=parsed_config['password']
+        #self.username=parsed_config['username']
+        #self.password=parsed_config['password']
         
         self.start_date=parsed_config['time_range']['start_date']
         self.end_date=parsed_config['time_range']['end_date']
@@ -172,8 +172,12 @@ class ErosDownloader(DataDownloader):
     def login(self):
         """
         Overrideable function to do a login, if needed by the target API.
-        """        
-        payload = {'username' : self.username , 'password' : self.password }
+        """
+        f = open("inferaster/logins/eros.txt")
+        username = f.readline().strip().replace("username: ", "")
+        password = f.readline().strip().replace("password: ", "")
+        f.close()
+        payload = {'username' : username , 'password' : password }
         apiKey = self.sendRequest(self.serviceUrl + "login", payload)
         print("\nSigned in...\n")
         return apiKey
@@ -301,7 +305,12 @@ class ErosDownloader(DataDownloader):
                 }
                 meta = self.sendRequest(self.serviceUrl + "scene-metadata", sceneMetaPayload, self.apiKey)
                 sceneMeta.append(meta)
-            downloadIds = self.filterIR(sceneMeta, sceneIds)
+            filter_IR = True
+            if filter_IR is True:
+                downloadIds = self.filterIR(sceneMeta, sceneIds)
+            else:
+                downloadIds = sceneIds
+
             # Find the download options for these scenes, 
             optionPayload = {'datasetName' : dataset['datasetAlias'], 'entityIds' : downloadIds}                
             downloadOptions = self.sendRequest(self.serviceUrl + "download-options", optionPayload, self.apiKey)

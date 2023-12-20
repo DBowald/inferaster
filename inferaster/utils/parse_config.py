@@ -1,8 +1,8 @@
 import argparse
 import yaml
 import os
-from data_trawler.utils.geo_shapes import WgsBBox, WgsPoint
-from data_trawler.tiling.tilesets import OsmTileset, EquiviTilesTileset
+from inferaster.utils.geo_shapes import WgsBBox, WgsPoint
+from inferaster.tiling.tilesets import OsmTileset, EquiviTilesTileset
 
 # Need a more elegant way to do this
 
@@ -15,7 +15,7 @@ def parse_config(yaml_path:str) -> dict:
     Parameters
     ----------
     yaml_path : str
-        full file path to config yaml. Check out data_trawler/utils/config_files for examples.
+        full file path to config yaml. Check out inferaster/utils/config_files for examples.
 
     Returns
     -------

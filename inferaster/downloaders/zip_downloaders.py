@@ -4,9 +4,9 @@ import glob
 import shutil
 import json
 
-from data_trawler.downloaders.data_downloader import DataDownloader, Entry
+from inferaster.downloaders.data_downloader import DataDownloader, Entry
 from zipfile import ZipFile
-from data_trawler.utils.geotiff import Geotiff
+from inferaster.utils.geotiff import Geotiff
 
 from geopy.distance import geodesic
 
@@ -116,11 +116,6 @@ class GaddsZipDownloader(DataDownloader):
         return lon_d/pix_width
 
 
-
-
-
-
-    
     def get_image_data_list(self, max_items: int) -> 'list[Entry]':
         """ 
         Forms a list of metadata entries for download. Check out the Entry docstring for info on all the parameters an Entry should contain.

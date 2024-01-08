@@ -23,6 +23,10 @@ try:
 except ImportError as err:
     print(Warning("Current environment not compatible with eros downloader; {}".format(err)))
 
+try:
+    from inferaster.downloaders.umbra_downloaders import UmbraZipDownloader
+except ImportError as err:
+    print(Warning("Current environment not compatible with eros downloader; {}".format(err)))
 """
 try:
     from inferaster.downloaders.hyperion_downloader import ErosHyperionDownloader
@@ -67,6 +71,8 @@ if __name__ == "__main__":
         dset = parsed_config["dataset"]
         if dset == "eros":
             downloader = ErosDownloader(parsed_config)
+        if dset == "umbra":
+            downloader = UmbraZipDownloader(parsed_config)
         #if dset == "maxar_api":
         #    downloader = MaxarApiTilesDownloader(parsed_config)
         #elif dset == "maxar_zip":

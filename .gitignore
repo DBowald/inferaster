@@ -163,3 +163,5 @@ cython_debug/
 inferaster/config_files/*
 !inferaster/config_files/*example*
 inferaster/logins/*
+inferaster/downloaders/gadds_zip.py
+inferaster/downloaders/mag_downloaders.py

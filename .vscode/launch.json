@@ -10,8 +10,8 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["--yaml","./inferaster/config_files/eros_nd.yaml","--download", "--chip"]
+            "justMyCode": false,
+            "args": ["--yaml","./inferaster/config_files/eros_nd.yaml", "--chip"]
         },
         {
             "name": "main.py",
@@ -19,8 +19,8 @@
             "request": "launch",
             "program": "inferaster/main.py",
             "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["--yaml","./inferaster/config_files/eros_nd.yaml","--download", "--chip"]
+            "justMyCode":true,
+            "args": ["--yaml","./inferaster/config_files/umbra_ohio.yaml", "--chip"]
         }
 
     ]

@@ -71,7 +71,7 @@ if __name__ == "__main__":
         dset = parsed_config["dataset"]
         if dset == "eros":
             downloader = ErosDownloader(parsed_config)
-        if dset == "umbra":
+        elif dset == "umbra":
             downloader = UmbraZipDownloader(parsed_config)
         #if dset == "maxar_api":
         #    downloader = MaxarApiTilesDownloader(parsed_config)

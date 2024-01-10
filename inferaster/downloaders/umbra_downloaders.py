@@ -7,8 +7,16 @@ import datetime
 from inferaster.downloaders.data_downloader import DataDownloader, Entry
 from zipfile import ZipFile
 from inferaster.utils.geotiff import Geotiff
+import rasterio
 
 from geopy.distance import geodesic
+
+from rasterio.warp import reproject, Resampling
+from affine import Affine
+import numpy as np
+
+import math
+
 
 
 
@@ -149,7 +157,81 @@ class UmbraZipDownloader(DataDownloader):
         """
         tiff_dir_path = entry.full_metadata["dir_path"]
         tiff_path = glob.glob(tiff_dir_path + os.sep + "*.tif")[0]
-        shutil.copy2(tiff_path, os.path.join(self.datapath,entry.relpath))
+        #rasterio.open(tiff_path)
+        geotiff = Geotiff(tiff_path)
+        rotation = self.get_rotation_north(geotiff)
+        rotation = math.degrees(rotation)
+        width = geotiff.geo_reader.width
+        height = geotiff.geo_reader.height
+        max_length = math.sqrt((width**2) + (height**2))
+        adj_w = max_length - width
+        adj_h = max_length - height
+        shift_y = height/2
+        fname = tiff_path.split('/')[-1]
+        out_path = os.path.join(tiff_path.split('/umbra')[0], "tiffs_to_chip", fname + "f")
+        self.rotate_raster(tiff_path, out_path, rotation,
+                           adj_height=adj_h, adj_width=adj_w, shift_y=shift_y)
+        
+        #shutil.copy2(tiff_path, os.path.join(self.datapath,entry.relpath))
+    
+    def get_rotation_north(self, geotiff):
+        width = geotiff.geo_reader.width
+        height = geotiff.geo_reader.height
+        big_height = geotiff.wgs84_to_pix(geotiff.wgs_bounds.se)[0][1]
+        delta_h = big_height - height
+        big_width = geotiff.wgs84_to_pix(geotiff.wgs_bounds.ne)[0][0]
+        delta_w = big_width - width
+        return math.atan(delta_h/width)
+        
+
+    def rotate_raster(self, in_file,out_file, angle, shift_x=0, shift_y=0,adj_width=0, adj_height=0):
+
+
+        with rasterio.open(in_file) as src:
+
+            # Get the old transform and crs
+            src_transform = src.transform 
+            crs = src.crs
+
+            # Affine transformations for rotation and translation
+            rotate = Affine.rotation(angle)
+            trans_x = Affine.translation(shift_x,0)
+            trans_y = Affine.translation(0, -shift_y)
+
+            # Combine affine transformations
+            dst_transform = src_transform * rotate * trans_x * trans_y
+
+            # Get band data
+            band = np.array(src.read(1))
+
+            # Get the new shape
+            y,x = band.shape
+            dst_height = y + adj_height
+            dst_width = x + adj_width
+
+            # set properties for output
+            dst_kwargs = src.meta.copy()
+            dst_kwargs.update(
+                {
+                    "transform": dst_transform,
+                    "height": dst_height,
+                    "width": dst_width,
+                    "nodata": 0,  
+                }
+            )
+
+            # write to disk
+            with rasterio.open(out_file, "w", **dst_kwargs) as dst:
+                # reproject to new CRS
+
+                reproject(source=band,
+                            destination=rasterio.band(dst, 1),
+                            src_transform=src_transform,
+                            src_crs=crs,
+                            dst_transform=dst_transform,
+                            dst_crs=crs,
+                            resampling=Resampling.nearest)
+
 
 
         #outputpath = os.path.join(self.datapath, entry.relpath)

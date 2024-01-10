@@ -70,8 +70,8 @@ class BaseChipper():
         
         # TODO: See if there's a better way to do this
         # TODO: Make this a generator
-        for each_tile in tile_list:
-            pass
+        #for each_tile in tile_list:
+        #    pass
     
     def save_stack_no_stitch(self, tile:tilesets.Tile, tiff_gdf:geopandas.GeoDataFrame):
         """

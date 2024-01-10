@@ -20,7 +20,7 @@
             "program": "inferaster/main.py",
             "console": "integratedTerminal",
             "justMyCode":true,
-            "args": ["--yaml","./inferaster/config_files/umbra_ohio.yaml", "--chip"]
+            "args": ["--yaml","./inferaster/config_files/umbra_ohio.yaml", "--download","--chip"]
         }
 
     ]

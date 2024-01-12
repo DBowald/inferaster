@@ -87,7 +87,7 @@ class UmbraZipDownloader(DataDownloader):
         #         tiffs_in_bbox_dir_paths.append(gtiff_folder)
         #     gtiff.close()
         # return tiffs_in_bbox_dir_paths
-    
+
     def get_gsd_m_from_folder(self, folder):
         tiff_path = glob.glob(folder + os.sep + "/**.tif")[0]
         gtiff = Geotiff(tiff_path)
@@ -175,19 +175,54 @@ class UmbraZipDownloader(DataDownloader):
         geotiff = Geotiff(tiff_path)
         rotation = self.get_rotation_north(geotiff)
         rotation = math.degrees(rotation)
+        if(rotation < 0):
+            rotation = 360 + rotation
         width = geotiff.geo_reader.width
         height = geotiff.geo_reader.height
         max_length = math.sqrt((width**2) + (height**2))
         adj_w = max_length - width
         adj_h = max_length - height
-        shift_y = height/2
+        shift_x, shift_y = self.get_shift_for_rotation(rotation, width, height)
+        #shift_y = height/2
         fname = tiff_path.split('/')[-1]
         out_path = os.path.join(self.datapath, "tiffs_to_chip", fname + "f")
         self.rotate_raster(tiff_path, out_path, rotation,
-                           adj_height=adj_h, adj_width=adj_w, shift_y=shift_y)
+                           adj_height=adj_h, adj_width=adj_w, shift_x=-shift_x, shift_y=shift_y)
         
         #shutil.copy2(tiff_path, os.path.join(self.datapath,entry.relpath))
     
+    def get_shift_for_rotation(self, rotation, width, height):
+        shift_x = 0
+        shift_y = 0
+        if(0 < rotation <= 90):
+            shift_y = width*math.sin(math.radians(rotation))
+        elif(90 < rotation <= 180):
+            shift_y = max(-height*math.cos(math.radians(rotation)),
+                           width*math.sin(math.radians(rotation)))
+            shift_x = -width*math.cos(math.radians(rotation))
+        elif(180 < rotation <= 270):
+            shift_y = -height*math.cos(math.radians(rotation))
+            shift_x = max(-height*math.sin(math.radians(rotation)),
+                           -width*math.cos(math.radians(rotation)))
+        else:
+            shift_x = -height * math.sin(math.radians(rotation))
+        return math.ceil(shift_x), math.ceil(shift_y)
+
+    def get_rotation_north_new(self,geotiff):
+        width = geotiff.geo_reader.width
+        height = geotiff.geo_reader.height
+        points = {
+            "tl": geotiff.pix_to_wgs84((0,0)),
+            "tr": geotiff.pix_to_wgs84((width,0)),
+            "bl": geotiff.pix_to_wgs84((0,height)),
+            "br": geotiff.pix_to_wgs84((width,height))
+
+        }
+
+        #dict(sorted(people.items(), key=lambda item: item[1]))
+
+
+
     def get_rotation_north(self, geotiff):
         width = geotiff.geo_reader.width
         height = geotiff.geo_reader.height
@@ -195,7 +230,7 @@ class UmbraZipDownloader(DataDownloader):
         delta_h = big_height - height
         big_width = geotiff.wgs84_to_pix(geotiff.wgs_bounds.ne)[0][0]
         delta_w = big_width - width
-        return math.atan(delta_h/width) # 0 < pi/2
+        return math.atan(delta_h/width)
         
 
     def rotate_raster(self, in_file,out_file, angle, shift_x=0, shift_y=0,adj_width=0, adj_height=0):

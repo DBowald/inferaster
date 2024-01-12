@@ -178,7 +178,7 @@ class UmbraZipDownloader(DataDownloader):
         
         #shutil.copy2(tiff_path, os.path.join(self.datapath,entry.relpath))
     
-    def get_shift_for_rotation(rotation, width, height):
+    def get_shift_for_rotation(self, rotation, width, height):
         shift_x = 0
         shift_y = 0
         if(0 < rotation <= 90):

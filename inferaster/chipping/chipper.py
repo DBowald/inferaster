@@ -158,10 +158,13 @@ class BaseChipper():
                     [tile.se[0], tile.se[1]]]
         chip, profile = geotiff.wgs84_bbox_to_rio_chip(bbox)
         tile_dir = "{:3.6f}_{:3.6f}".format(tile.nw.lon, tile.nw.lat)
-        name = geotiff.read_tags()["name"].strip("\"") + ".tiff"
+        name = geotiff.geo_reader.name.split(os.path.sep)[-1] #geotiff.read_tags()["name"].strip("\"") + ".tiff"
         tile_path = os.path.join(self.chips_path, tile_dir)
         chip_path = os.path.join(tile_path, name)
         if chip.any():
+            # if (chip == 0).any():
+            #     print("array is all zeros")
+            #     return
             if not os.path.exists(tile_path):
                 os.makedirs(tile_path)
             with rasterio.open(chip_path, 'w', **profile) as dst:

@@ -18,6 +18,7 @@ import warnings
 import json
 warnings.filterwarnings("ignore")
 
+
 # TODO- Replace Pyproj.proj with Pyproj.Transform
 # TODO- docker pipeline
 # TODO - shaply bounding boxes insted of ULBR 
@@ -39,7 +40,11 @@ class Geotiff:
         # TODO This is a VERY hacky way to ensure back compatibility;
         # ultimately, wgs84_bounds code needs to be re written, and
         # geotiff also rewritten to work with geo_shapes
-        wgs_bounds_arr = self.geo_to_wgs84(self.geo_bounds)
+        try:
+            wgs_bounds_arr = self.geo_to_wgs84(self.geo_bounds)
+        except:
+            wgs_bounds_arr = np.array([[bounds.left, bounds.top],
+                        [bounds.right, bounds.bottom]])
         self.wgs84_bounds = wgs_bounds_arr
         self.wgs_bounds = WgsBBox(wgs_bounds_arr[0], wgs_bounds_arr[1])
     def close(self):

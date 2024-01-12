@@ -64,15 +64,29 @@ class UmbraZipDownloader(DataDownloader):
     
     def search_tiffs_by_bbox(self, unzip_relpath="umbra/umbra_unzipped"):
         tiffs_in_bbox_dir_paths = []
-        full_unzip_path = os.path.join(self.datapath, unzip_relpath)
-        tiff_paths = glob.glob(full_unzip_path + "/**/**.tif")
-        for each_tiff_path in tiff_paths:
-            gtiff = Geotiff(each_tiff_path)
-            if self.bbox.intersects(gtiff.wgs_bounds):
-                gtiff_folder = each_tiff_path.replace(os.sep + each_tiff_path.split(os.sep)[-1], "")
-                tiffs_in_bbox_dir_paths.append(gtiff_folder)
-            gtiff.close()
+        for root, dirs, files in os.walk(os.path.join(self.datapath, unzip_relpath)):
+            for name in files:
+                if ".tif" not in name:
+                    continue
+                gtiff = Geotiff(os.path.join(root, name))
+                if self.bbox.intersects(gtiff.wgs_bounds):
+                    gtiff_folder = root
+                    tiffs_in_bbox_dir_paths.append(gtiff_folder)
+                gtiff.close()
         return tiffs_in_bbox_dir_paths
+
+
+
+        # tiffs_in_bbox_dir_paths = []
+        # full_unzip_path = os.path.join(self.datapath, unzip_relpath)
+        # tiff_paths = glob.glob(full_unzip_path + "/**/**.tif")
+        # for each_tiff_path in tiff_paths:
+        #     gtiff = Geotiff(each_tiff_path)
+        #     if self.bbox.intersects(gtiff.wgs_bounds):
+        #         gtiff_folder = each_tiff_path.replace(os.sep + each_tiff_path.split(os.sep)[-1], "")
+        #         tiffs_in_bbox_dir_paths.append(gtiff_folder)
+        #     gtiff.close()
+        # return tiffs_in_bbox_dir_paths
     
     def get_gsd_m_from_folder(self, folder):
         tiff_path = glob.glob(folder + os.sep + "/**.tif")[0]
@@ -110,10 +124,10 @@ class UmbraZipDownloader(DataDownloader):
             Entry docstring for more details.
 
         """
-        self.unzip()
+        # self.unzip()
         all_entries = []
         # Don't really have an API, but I'll keep the name for consistency
-        api_bbox_search_results = self.search_tiffs_by_bbox()
+        api_bbox_search_results = self.search_tiffs_by_bbox(unzip_relpath='sar-data/tasks')
 
         for each_result in api_bbox_search_results:
             if len(api_bbox_search_results) > max_items:
@@ -168,7 +182,7 @@ class UmbraZipDownloader(DataDownloader):
         adj_h = max_length - height
         shift_y = height/2
         fname = tiff_path.split('/')[-1]
-        out_path = os.path.join(tiff_path.split('/umbra')[0], "tiffs_to_chip", fname + "f")
+        out_path = os.path.join(self.datapath, "tiffs_to_chip", fname + "f")
         self.rotate_raster(tiff_path, out_path, rotation,
                            adj_height=adj_h, adj_width=adj_w, shift_y=shift_y)
         
@@ -181,7 +195,7 @@ class UmbraZipDownloader(DataDownloader):
         delta_h = big_height - height
         big_width = geotiff.wgs84_to_pix(geotiff.wgs_bounds.ne)[0][0]
         delta_w = big_width - width
-        return math.atan(delta_h/width)
+        return math.atan(delta_h/width) # 0 < pi/2
         
 
     def rotate_raster(self, in_file,out_file, angle, shift_x=0, shift_y=0,adj_width=0, adj_height=0):

@@ -195,7 +195,7 @@ class UmbraZipDownloader(DataDownloader):
             shift_x = -height * math.sin(math.radians(rotation))
         return math.ceil(shift_x), math.ceil(shift_y)
     
-    def get_rotation_north(self,geotiff):
+    def get_rotation_north_new(self,geotiff):
         width = geotiff.geo_reader.width
         height = geotiff.geo_reader.height
         points = {
@@ -206,7 +206,7 @@ class UmbraZipDownloader(DataDownloader):
  
         }
 
-        dict(sorted(people.items(), key=lambda item: item[1]))
+        #dict(sorted(people.items(), key=lambda item: item[1]))
 
 
     

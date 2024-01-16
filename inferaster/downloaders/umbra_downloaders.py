@@ -16,6 +16,7 @@ from affine import Affine
 import numpy as np
 
 import math
+import json
 
 
 
@@ -173,8 +174,12 @@ class UmbraZipDownloader(DataDownloader):
         tiff_path = glob.glob(tiff_dir_path + os.sep + "*.tif")[0]
         #rasterio.open(tiff_path)
         geotiff = Geotiff(tiff_path)
-        rotation = self.get_rotation_north(geotiff)
-        rotation = math.degrees(rotation)
+        f = open(glob.glob(tiff_dir_path + os.sep + "*.json")[0])
+        meta = json.load(f)
+        rotation_t = self.get_rotation_north(geotiff)
+        rotation_t = math.degrees(rotation_t)
+        rotation = meta["collects"][0]['angleAzimuthDegrees']
+        rotation = -rotation
         if(rotation < 0):
             rotation = 360 + rotation
         width = geotiff.geo_reader.width
@@ -190,23 +195,25 @@ class UmbraZipDownloader(DataDownloader):
                            adj_height=adj_h, adj_width=adj_w, shift_x=-shift_x, shift_y=shift_y)
         
         #shutil.copy2(tiff_path, os.path.join(self.datapath,entry.relpath))
-    
+
+
+    def my_rotate(self, x, y, angle):
+        # Assumes input in degrees
+        theta = math.radians(angle)
+        return x*math.cos(theta) - y*math.sin(theta), x*math.sin(theta) + y*math.cos(theta)
+
     def get_shift_for_rotation(self, rotation, width, height):
-        shift_x = 0
-        shift_y = 0
-        if(0 < rotation <= 90):
-            shift_y = width*math.sin(math.radians(rotation))
-        elif(90 < rotation <= 180):
-            shift_y = max(-height*math.cos(math.radians(rotation)),
-                           width*math.sin(math.radians(rotation)))
-            shift_x = -width*math.cos(math.radians(rotation))
-        elif(180 < rotation <= 270):
-            shift_y = -height*math.cos(math.radians(rotation))
-            shift_x = max(-height*math.sin(math.radians(rotation)),
-                           -width*math.cos(math.radians(rotation)))
-        else:
-            shift_x = -height * math.sin(math.radians(rotation))
-        return math.ceil(shift_x), math.ceil(shift_y)
+        x = width
+        y = -height
+
+        (x1, y1) = self.my_rotate(x, 0, rotation)
+        (x2, y2) = self.my_rotate(0, y, rotation)
+        (x3, y3) = self.my_rotate(x, y, rotation)
+
+        shift_x = min(x1, x2, x3, 0)
+        shift_y = max(y1, y2, y3, 0)
+        return -shift_x, shift_y
+
 
     def get_rotation_north_new(self,geotiff):
         width = geotiff.geo_reader.width
@@ -224,6 +231,18 @@ class UmbraZipDownloader(DataDownloader):
 
 
     def get_rotation_north(self, geotiff):
+        sx = np.linalg.norm(np.array(geotiff.src_affine.column_vectors[0]), ord=2)
+        sy = np.linalg.norm(np.array(geotiff.src_affine.column_vectors[1]), ord=2)
+        sz = np.linalg.norm(np.array(geotiff.src_affine.column_vectors[2]), ord=2)
+
+        theta = math.acos(geotiff.src_affine.a / sx)
+        theta1 = -1 * math.asin(geotiff.src_affine.b / sx)
+        theta2 = math.asin(geotiff.src_affine.d / sy)
+        theta3 = math.acos(geotiff.src_affine.e / sy)
+
+        return theta
+
+
         width = geotiff.geo_reader.width
         height = geotiff.geo_reader.height
         big_height = geotiff.wgs84_to_pix(geotiff.wgs_bounds.se)[0][1]
@@ -265,7 +284,7 @@ class UmbraZipDownloader(DataDownloader):
                     "transform": dst_transform,
                     "height": dst_height,
                     "width": dst_width,
-                    "nodata": 0,  
+                    "nodata": 255,
                 }
             )
 

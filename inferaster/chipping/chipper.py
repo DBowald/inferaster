@@ -162,9 +162,9 @@ class BaseChipper():
         tile_path = os.path.join(self.chips_path, tile_dir)
         chip_path = os.path.join(tile_path, name)
         if chip.any():
-            # if (chip == 0).any():
-            #     print("array is all zeros")
-            #     return
+            if (chip == 255).sum() > 150:
+                print("array is all zeros")
+                return
             if not os.path.exists(tile_path):
                 os.makedirs(tile_path)
             with rasterio.open(chip_path, 'w', **profile) as dst:

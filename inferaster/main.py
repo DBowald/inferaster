@@ -84,7 +84,7 @@ if __name__ == "__main__":
         else:
             raise NotImplementedError("Downloader {} not implemented. Valid options are maxar_api, maxar_zip, aviris, and eros.".format(dset))
     
-        downloader.download(max_items=parsed_config["max_downloads"])
+        # downloader.download(max_items=parsed_config["max_downloads"])
     
     if(args.chip):
         #tset = parsed_config["tiling_method"]

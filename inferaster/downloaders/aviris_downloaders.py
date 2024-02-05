@@ -277,7 +277,11 @@ class AvirisDownloader(DataDownloader):
         'w',
         driver='GTiff',
         height=img.nrows,
+<<<<<<< HEAD
         width=img.ncols,
+=======
+        width=img.nbands,
+>>>>>>> 6c104fea7e00368d867e4e10ad26a71eb4c7634b
         count=counts,
         dtype=img._memmap[0,0,0].dtype,
         crs=crs,

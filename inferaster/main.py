@@ -11,20 +11,10 @@ except ImportError as err:
     print(Warning("Current environment not compatible with maxar downloader; {}".format(err)))
 """
 
-<<<<<<< HEAD
-
-=======
-"""
->>>>>>> 6c104fea7e00368d867e4e10ad26a71eb4c7634b
 try:
     from inferaster.downloaders.aviris_downloaders import AvirisDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with aviris downloader; {}".format(err)))
-<<<<<<< HEAD
-
-=======
-"""
->>>>>>> 6c104fea7e00368d867e4e10ad26a71eb4c7634b
 
 try:
     from inferaster.downloaders.eros_downloaders import ErosDownloader

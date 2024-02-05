@@ -16,6 +16,7 @@ import argparse
 import inferaster.utils.geotiff as geotiff
 import inferaster.tiling.tilesets as tilesets
 from inferaster.utils.geo_shapes import WgsBBox, WgsPoint
+from shapely.geometry import Polygon
 import glob
 from inferaster.utils.geotiff import Geotiff
 import geopandas
@@ -89,8 +90,10 @@ class BaseChipper():
             if len(coverage_tiff_gdf) <= 0:
                 break
             geo = Geotiff(row["full_path"])
-            self.save_rio_chip(geo, tile)
-            geo.close()
+            true_shape = Polygon(geo.find_exact())
+            if true_shape.contains(tile):
+                self.save_rio_chip(geo, tile)
+                geo.close()
         print(coverage_tiff_gdf)
     
     def save_stack_mosaic(self, tile, tiff_gdf):

@@ -40,6 +40,26 @@ def parse_config(yaml_path:str) -> dict:
                             inputs["bounding_box"]["se_point"]["latitude"])
             bounds = WgsBBox(nw_pt, se_pt)
             new_dict[k] = bounds
+        elif k == "bounding_box_set":
+            keys = inputs['bounding_box_set'].keys()
+            first = list(keys)[0]
+            nw_pt = WgsPoint(inputs["bounding_box_set"][first]["nw_point"]["longitude"], 
+                                inputs["bounding_box_set"][first]["nw_point"]["latitude"])
+            se_pt = WgsPoint(inputs["bounding_box_set"][first]["se_point"]["longitude"], 
+                            inputs["bounding_box_set"][first]["se_point"]["latitude"])
+            bounds = WgsBBox(nw_pt, se_pt)
+            new_dict["bounding_box"] = bounds
+            all_bounds = []
+            for key in keys:
+                nw_pt = WgsPoint(inputs["bounding_box_set"][key]["nw_point"]["longitude"], 
+                                    inputs["bounding_box_set"][key]["nw_point"]["latitude"])
+                se_pt = WgsPoint(inputs["bounding_box_set"][key]["se_point"]["longitude"], 
+                                inputs["bounding_box_set"][key]["se_point"]["latitude"])
+                bounds = WgsBBox(nw_pt, se_pt)
+                all_bounds.append(bounds)
+            new_dict['bounding_box_set']  = all_bounds
+
+
         elif k == "tiling_method":
             if inputs["tiling_method"].lower() == "EquiviTiles".lower():
                 try:

@@ -11,12 +11,10 @@ except ImportError as err:
     print(Warning("Current environment not compatible with maxar downloader; {}".format(err)))
 """
 
-"""
 try:
     from inferaster.downloaders.aviris_downloaders import AvirisDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with aviris downloader; {}".format(err)))
-"""
 
 try:
     from inferaster.downloaders.eros_downloaders import ErosDownloader
@@ -77,14 +75,14 @@ if __name__ == "__main__":
         #    downloader = MaxarApiTilesDownloader(parsed_config)
         #elif dset == "maxar_zip":
         #    donwloader = MaxarZipDataDownloader(parsed_config)
-        #elif dset == "aviris":
-        #    downloader = AvirisDownloader(parsed_config)
+        elif dset == "aviris":
+           downloader = AvirisDownloader(parsed_config)
         #elif dset == "eros_hyperion":
         #    downloader = ErosHyperionDownloader(parsed_config)
         else:
             raise NotImplementedError("Downloader {} not implemented. Valid options are maxar_api, maxar_zip, aviris, and eros.".format(dset))
     
-        # downloader.download(max_items=parsed_config["max_downloads"])
+        downloader.download(max_items=parsed_config["max_downloads"])
     
     if(args.chip):
         #tset = parsed_config["tiling_method"]

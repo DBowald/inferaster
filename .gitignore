@@ -165,3 +165,4 @@ inferaster/config_files/*
 inferaster/logins/*
 inferaster/downloaders/gadds_zip.py
 inferaster/downloaders/mag_downloaders.py
+inferaster/utils/coastlines-split-4326/*

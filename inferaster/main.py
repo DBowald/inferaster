@@ -11,12 +11,20 @@ except ImportError as err:
     print(Warning("Current environment not compatible with maxar downloader; {}".format(err)))
 """
 
+<<<<<<< HEAD
+
+=======
 """
+>>>>>>> 6c104fea7e00368d867e4e10ad26a71eb4c7634b
 try:
     from inferaster.downloaders.aviris_downloaders import AvirisDownloader
 except ImportError as err:
     print(Warning("Current environment not compatible with aviris downloader; {}".format(err)))
+<<<<<<< HEAD
+
+=======
 """
+>>>>>>> 6c104fea7e00368d867e4e10ad26a71eb4c7634b
 
 try:
     from inferaster.downloaders.eros_downloaders import ErosDownloader
@@ -71,14 +79,14 @@ if __name__ == "__main__":
         dset = parsed_config["dataset"]
         if dset == "eros":
             downloader = ErosDownloader(parsed_config)
-        if dset == "umbra":
+        elif dset == "umbra":
             downloader = UmbraZipDownloader(parsed_config)
         #if dset == "maxar_api":
         #    downloader = MaxarApiTilesDownloader(parsed_config)
         #elif dset == "maxar_zip":
         #    donwloader = MaxarZipDataDownloader(parsed_config)
-        #elif dset == "aviris":
-        #    downloader = AvirisDownloader(parsed_config)
+        elif dset == "aviris":
+           downloader = AvirisDownloader(parsed_config)
         #elif dset == "eros_hyperion":
         #    downloader = ErosHyperionDownloader(parsed_config)
         else:

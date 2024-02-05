@@ -14,13 +14,31 @@
             "args": ["--yaml","./inferaster/config_files/eros_nd.yaml", "--chip"]
         },
         {
+            "name": "main.py - dl",
+            "type": "python",
+            "request": "launch",
+            "program": "inferaster/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": ["--yaml", "inferaster/config_files/aviris_example.yaml", "--download"]
+        },
+        {
+            "name": "main.py - chip",
+            "type": "python",
+            "request": "launch",
+            "program": "inferaster/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": ["--yaml", "inferaster/config_files/aviris_example.yaml", "--chip"]
+        },
+        {
             "name": "main.py",
             "type": "python",
             "request": "launch",
             "program": "inferaster/main.py",
             "console": "integratedTerminal",
             "justMyCode":true,
-            "args": ["--yaml","./inferaster/config_files/umbra_ohio.yaml", "--chip"]
+            "args": ["--yaml","./inferaster/config_files/umbra_ohio.yaml", "--download","--chip"]
         }
 
     ]

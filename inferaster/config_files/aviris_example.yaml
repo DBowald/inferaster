@@ -1,0 +1,68 @@
+dataset: "aviris"
+bounding_box_set:
+  location_1:
+    nw_point:
+      latitude: 12.545161279963931
+      longitude: -55.50794421894374
+    se_point:
+      latitude: 50.660642775183916
+      longitude:  -163.9787734839246
+  # location_2:
+  #   nw_point:
+  #     latitude: 49.78
+  #     longitude: -124.257
+  #   se_point:
+  #     latitude: 36.543
+  #     longitude: -120.672
+  # location_3:
+  #   nw_point:
+  #     latitude: 35.044
+  #     longitude: -121.031
+  #   se_point:
+  #     latitude: 33.213
+  #     longitude: -117.143
+  # location_4:
+  #   nw_point:
+  #     latitude: 21.778
+  #     longitude: -158.316
+  #   se_point:
+  #     latitude: 20.433
+  #     longitude: -156.16
+  # location_5:
+  #   nw_point:
+  #     latitude: 19.99
+  #     longitude: -156.273
+  #   se_point:
+  #     latitude: 18.905
+  #     longitude: -154.727
+  # location_6:
+  #   nw_point:
+  #     latitude: 30.5
+  #     longitude: -94.984
+  #   se_point:
+  #     latitude: 28.949
+  #     longitude: -83.778
+  # location_7:
+  #   nw_point:
+  #     latitude: 48.22
+  #     longitude: -92.726
+  #   se_point:
+  #     latitude: 42.879
+  #     longitude: -81.52
+datapath: ~/data/test
+full_tiff_dir: tiffs_to_chip
+chip_dir: chipped
+chip_size_m: 10000
+max_downloads: 1
+costal_only: True
+time_range:
+  start_date: '2000-12-10'
+  end_date: '2025-12-10'
+bands: [[0,224]]
+tiling_method: "EquiviTiles"
+step-size:
+  max: 999
+  min: 0
+download-size:
+  max: 3
+  min: 1

@@ -173,7 +173,7 @@ class ErosDownloader(DataDownloader):
         """
         Overrideable function to do a login, if needed by the target API.
         """
-        f = open("inferaster/logins/eros.txt")
+        f = open("logins/eros.txt")
         username = f.readline().strip().replace("username: ", "")
         password = f.readline().strip().replace("password: ", "")
         f.close()

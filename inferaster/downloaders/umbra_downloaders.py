@@ -7,8 +7,17 @@ import datetime
 from inferaster.downloaders.data_downloader import DataDownloader, Entry
 from zipfile import ZipFile
 from inferaster.utils.geotiff import Geotiff
+import rasterio
 
 from geopy.distance import geodesic
+
+from rasterio.warp import reproject, Resampling
+from affine import Affine
+import numpy as np
+
+import math
+import json
+
 
 
 
@@ -56,16 +65,30 @@ class UmbraZipDownloader(DataDownloader):
     
     def search_tiffs_by_bbox(self, unzip_relpath="umbra/umbra_unzipped"):
         tiffs_in_bbox_dir_paths = []
-        full_unzip_path = os.path.join(self.datapath, unzip_relpath)
-        tiff_paths = glob.glob(full_unzip_path + "/**/**.tif")
-        for each_tiff_path in tiff_paths:
-            gtiff = Geotiff(each_tiff_path)
-            if self.bbox.intersects(gtiff.wgs_bounds):
-                gtiff_folder = each_tiff_path.replace(os.sep + each_tiff_path.split(os.sep)[-1], "")
-                tiffs_in_bbox_dir_paths.append(gtiff_folder)
-            gtiff.close()
+        for root, dirs, files in os.walk(os.path.join(self.datapath, unzip_relpath)):
+            for name in files:
+                if ".tif" not in name:
+                    continue
+                gtiff = Geotiff(os.path.join(root, name))
+                if self.bbox.intersects(gtiff.wgs_bounds):
+                    gtiff_folder = root
+                    tiffs_in_bbox_dir_paths.append(gtiff_folder)
+                gtiff.close()
         return tiffs_in_bbox_dir_paths
-    
+
+
+
+        # tiffs_in_bbox_dir_paths = []
+        # full_unzip_path = os.path.join(self.datapath, unzip_relpath)
+        # tiff_paths = glob.glob(full_unzip_path + "/**/**.tif")
+        # for each_tiff_path in tiff_paths:
+        #     gtiff = Geotiff(each_tiff_path)
+        #     if self.bbox.intersects(gtiff.wgs_bounds):
+        #         gtiff_folder = each_tiff_path.replace(os.sep + each_tiff_path.split(os.sep)[-1], "")
+        #         tiffs_in_bbox_dir_paths.append(gtiff_folder)
+        #     gtiff.close()
+        # return tiffs_in_bbox_dir_paths
+
     def get_gsd_m_from_folder(self, folder):
         tiff_path = glob.glob(folder + os.sep + "/**.tif")[0]
         gtiff = Geotiff(tiff_path)
@@ -102,10 +125,10 @@ class UmbraZipDownloader(DataDownloader):
             Entry docstring for more details.
 
         """
-        self.unzip()
+        # self.unzip()
         all_entries = []
         # Don't really have an API, but I'll keep the name for consistency
-        api_bbox_search_results = self.search_tiffs_by_bbox()
+        api_bbox_search_results = self.search_tiffs_by_bbox(unzip_relpath='sar-data/tasks')
 
         for each_result in api_bbox_search_results:
             if len(api_bbox_search_results) > max_items:
@@ -149,7 +172,134 @@ class UmbraZipDownloader(DataDownloader):
         """
         tiff_dir_path = entry.full_metadata["dir_path"]
         tiff_path = glob.glob(tiff_dir_path + os.sep + "*.tif")[0]
-        shutil.copy2(tiff_path, os.path.join(self.datapath,entry.relpath))
+        #rasterio.open(tiff_path)
+        geotiff = Geotiff(tiff_path)
+        f = open(glob.glob(tiff_dir_path + os.sep + "*.json")[0])
+        meta = json.load(f)
+        rotation_t = self.get_rotation_north(geotiff)
+        rotation_t = math.degrees(rotation_t)
+        rotation = meta["collects"][0]['angleAzimuthDegrees']
+        rotation = -rotation
+        if(rotation < 0):
+            rotation = 360 + rotation
+        width = geotiff.geo_reader.width
+        height = geotiff.geo_reader.height
+        max_length = math.sqrt((width**2) + (height**2))
+        adj_w = max_length - width
+        adj_h = max_length - height
+        shift_x, shift_y = self.get_shift_for_rotation(rotation, width, height)
+        #shift_y = height/2
+        fname = tiff_path.split('/')[-1]
+        out_path = os.path.join(self.datapath, "tiffs_to_chip", fname + "f")
+        self.rotate_raster(tiff_path, out_path, rotation,
+                           adj_height=adj_h, adj_width=adj_w, shift_x=-shift_x, shift_y=shift_y)
+        
+        #shutil.copy2(tiff_path, os.path.join(self.datapath,entry.relpath))
+
+
+    def my_rotate(self, x, y, angle):
+        # Assumes input in degrees
+        theta = math.radians(angle)
+        return x*math.cos(theta) - y*math.sin(theta), x*math.sin(theta) + y*math.cos(theta)
+
+    def get_shift_for_rotation(self, rotation, width, height):
+        x = width
+        y = -height
+
+        (x1, y1) = self.my_rotate(x, 0, rotation)
+        (x2, y2) = self.my_rotate(0, y, rotation)
+        (x3, y3) = self.my_rotate(x, y, rotation)
+
+        shift_x = min(x1, x2, x3, 0)
+        shift_y = max(y1, y2, y3, 0)
+        return -shift_x, shift_y
+
+
+    def get_rotation_north_new(self,geotiff):
+        width = geotiff.geo_reader.width
+        height = geotiff.geo_reader.height
+        points = {
+            "tl": geotiff.pix_to_wgs84((0,0)),
+            "tr": geotiff.pix_to_wgs84((width,0)),
+            "bl": geotiff.pix_to_wgs84((0,height)),
+            "br": geotiff.pix_to_wgs84((width,height))
+
+        }
+
+        #dict(sorted(people.items(), key=lambda item: item[1]))
+
+
+
+    def get_rotation_north(self, geotiff):
+        sx = np.linalg.norm(np.array(geotiff.src_affine.column_vectors[0]), ord=2)
+        sy = np.linalg.norm(np.array(geotiff.src_affine.column_vectors[1]), ord=2)
+        sz = np.linalg.norm(np.array(geotiff.src_affine.column_vectors[2]), ord=2)
+
+        theta = math.acos(geotiff.src_affine.a / sx)
+        theta1 = -1 * math.asin(geotiff.src_affine.b / sx)
+        theta2 = math.asin(geotiff.src_affine.d / sy)
+        theta3 = math.acos(geotiff.src_affine.e / sy)
+
+        return theta
+
+
+        width = geotiff.geo_reader.width
+        height = geotiff.geo_reader.height
+        big_height = geotiff.wgs84_to_pix(geotiff.wgs_bounds.se)[0][1]
+        delta_h = big_height - height
+        big_width = geotiff.wgs84_to_pix(geotiff.wgs_bounds.ne)[0][0]
+        delta_w = big_width - width
+        return math.atan(delta_h/width)
+        
+
+    def rotate_raster(self, in_file,out_file, angle, shift_x=0, shift_y=0,adj_width=0, adj_height=0):
+
+
+        with rasterio.open(in_file) as src:
+
+            # Get the old transform and crs
+            src_transform = src.transform 
+            crs = src.crs
+
+            # Affine transformations for rotation and translation
+            rotate = Affine.rotation(angle)
+            trans_x = Affine.translation(shift_x,0)
+            trans_y = Affine.translation(0, -shift_y)
+
+            # Combine affine transformations
+            dst_transform = src_transform * rotate * trans_x * trans_y
+
+            # Get band data
+            band = np.array(src.read(1))
+
+            # Get the new shape
+            y,x = band.shape
+            dst_height = y + adj_height
+            dst_width = x + adj_width
+
+            # set properties for output
+            dst_kwargs = src.meta.copy()
+            dst_kwargs.update(
+                {
+                    "transform": dst_transform,
+                    "height": dst_height,
+                    "width": dst_width,
+                    "nodata": 255,
+                }
+            )
+
+            # write to disk
+            with rasterio.open(out_file, "w", **dst_kwargs) as dst:
+                # reproject to new CRS
+
+                reproject(source=band,
+                            destination=rasterio.band(dst, 1),
+                            src_transform=src_transform,
+                            src_crs=crs,
+                            dst_transform=dst_transform,
+                            dst_crs=crs,
+                            resampling=Resampling.nearest)
+
 
 
         #outputpath = os.path.join(self.datapath, entry.relpath)

@@ -157,6 +157,9 @@ class DataDownloader(metaclass=abc.ABCMeta):
             If true, do not download existing images; if false, overwrite existing images. By default True
         """
         #TODO maybe this should be a generator
+        # Grabs an intersection of all the .tifs
+        # This is the only function
+        # and self.download_one()
         entries_to_dl = self.get_image_data_list(max_items)
         for each_entry in entries_to_dl:
 

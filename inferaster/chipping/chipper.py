@@ -16,6 +16,7 @@ import argparse
 import inferaster.utils.geotiff as geotiff
 import inferaster.tiling.tilesets as tilesets
 from inferaster.utils.geo_shapes import WgsBBox, WgsPoint
+from shapely.geometry import Polygon
 import glob
 from inferaster.utils.geotiff import Geotiff
 import geopandas
@@ -70,8 +71,8 @@ class BaseChipper():
         
         # TODO: See if there's a better way to do this
         # TODO: Make this a generator
-        for each_tile in tile_list:
-            pass
+        #for each_tile in tile_list:
+        #    pass
     
     def save_stack_no_stitch(self, tile:tilesets.Tile, tiff_gdf:geopandas.GeoDataFrame):
         """
@@ -89,8 +90,10 @@ class BaseChipper():
             if len(coverage_tiff_gdf) <= 0:
                 break
             geo = Geotiff(row["full_path"])
-            self.save_rio_chip(geo, tile)
-            geo.close()
+            true_shape = Polygon(geo.find_exact())
+            if true_shape.contains(tile):
+                self.save_rio_chip(geo, tile)
+                geo.close()
         print(coverage_tiff_gdf)
     
     def save_stack_mosaic(self, tile, tiff_gdf):
@@ -158,10 +161,13 @@ class BaseChipper():
                     [tile.se[0], tile.se[1]]]
         chip, profile = geotiff.wgs84_bbox_to_rio_chip(bbox)
         tile_dir = "{:3.6f}_{:3.6f}".format(tile.nw.lon, tile.nw.lat)
-        name = geotiff.read_tags()["name"].strip("\"") + ".tiff"
+        name = geotiff.geo_reader.name.split(os.path.sep)[-1] #geotiff.read_tags()["name"].strip("\"") + ".tiff"
         tile_path = os.path.join(self.chips_path, tile_dir)
         chip_path = os.path.join(tile_path, name)
         if chip.any():
+            if (chip == 255).sum() > 150:
+                print("array is all zeros")
+                return
             if not os.path.exists(tile_path):
                 os.makedirs(tile_path)
             with rasterio.open(chip_path, 'w', **profile) as dst:
